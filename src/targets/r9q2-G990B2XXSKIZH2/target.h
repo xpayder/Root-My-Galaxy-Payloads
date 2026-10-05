@@ -42,10 +42,12 @@
 #define KMALLOC_CACHE_TYPES 3
 
 #define MM_ORDER 3
-#define KSNITCH_COLLISIONS 5          /* 5.4 QGKI SM8350: needs one more collision than Exynos */
+#define KSNITCH_COLLISIONS 5
 #define KERNELSNITCH_VERBOSE 1
 #define KERNELSNITCH_MTE_ENABLED 0
-#define KERNELSNITCH_THRESHOLD_MULT 6  /* Qualcomm scheduler is faster; lower multiplier needed */
+#define KERNELSNITCH_FUTEX_HASH_SIZE 0x1000
+#define KERNELSNITCH_COLLISION_CONFIRMATIONS 3
+#define KERNELSNITCH_THRESHOLD_MULT 6
 #define FAKE_WAITER_PRIO 130
 #define PSELECT_ENTER_DELAY_USEC 50000
 
