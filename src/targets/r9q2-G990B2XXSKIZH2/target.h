@@ -43,7 +43,7 @@
 
 #define MM_ORDER 3
 #define KSNITCH_COLLISIONS 5          /* 5.4 QGKI SM8350: needs one more collision than Exynos */
-#define KERNELSNITCH_VERBOSE 0
+#define KERNELSNITCH_VERBOSE 1
 #define KERNELSNITCH_MTE_ENABLED 0
 #define KERNELSNITCH_THRESHOLD_MULT 6  /* Qualcomm scheduler is faster; lower multiplier needed */
 #define FAKE_WAITER_PRIO 130
@@ -277,7 +277,7 @@
 #define FAKE_WAITER_TASK_OFF          0x30
 #define FAKE_WAITER_LOCK_OFF          0x38
 #define FAKE_WAITER_WAKE_STATE_OFF    0x40
-#define FAKE_WAITER_PRIO_OFF          0x40
+#define FAKE_WAITER_PRIO_OFF          0x44
 #define FAKE_WAITER_DEADLINE_OFF      0x48
 #define FAKE_WAITER_WW_CTX_OFF        0x50
 #define FAKE_WAITER_LAYOUT_SIZE       0x58
