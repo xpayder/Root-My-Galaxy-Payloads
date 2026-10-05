@@ -97,6 +97,14 @@
 #define SLIDE_WAIT_NSEC 2000000000L
 #define SLIDE_REQUEUE_ARM_USEC 20000
 #define SLIDE_USE_FAKE_TASK 1
+// Wait for pselect6 to be blocked in do_select before firing sched_setattr,
+// preventing rt_mutex_adjust_prio_chain from reading stale proxy_waiter/freed pi_state.
+#define APP_REQUIRE_FRESH_P0_SESSION 1
+#define SLIDE_SYNC_PSELECT_SYSCALL 1
+#define SLIDE_GUARD_PSELECT_SYSCALL 1
+#define SLIDE_PSELECT_READY_TIMEOUT_USEC 20000
+#define SLIDE_PSELECT_RECHECK_TIMEOUT_USEC 20000
+#define SLIDE_PSELECT_WCHAN_CONFIRMATIONS 3
 // Legacy rt_mutex_waiter (5.4): two separate rb_node, no ww_ctx
 #define LEGACY_RT_MUTEX_WAITER 1
 #define COMPACT_RT_MUTEX_WAITER 0
