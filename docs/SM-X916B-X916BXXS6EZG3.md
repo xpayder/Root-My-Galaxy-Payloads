@@ -26,14 +26,14 @@ page size: 4096
 bootloader/verified boot: locked, green (stock, unmodified throughout)
 ```
 
-Port requested in issue [#243](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads/issues/243).
+Port requested in issue [#243](https://github.com/xpayder/Root-My-Galaxy-Payloads/issues/243).
 
 ## Engine base
 
 This profile is built on top of the MCAST/SIGRETURN stack-writer engine from
-PR [#227](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads/pull/227)
+PR [#227](https://github.com/xpayder/Root-My-Galaxy-Payloads/pull/227)
 (`X-15/Root-My-Galaxy-Payloads` branch `dm3q-s918b-fzf5`, itself stacked on
-PR [#223](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads/pull/223) by
+PR [#223](https://github.com/xpayder/Root-My-Galaxy-Payloads/pull/223) by
 `johnny-salz`). **This PR is stacked on #227** in the same sense #227 was
 stacked on #223: the diff includes the engine changes and will shrink once
 #227 merges. Chosen as the base because it is the most real-hardware-proven
@@ -44,8 +44,8 @@ closest real device to a Tab S9 Ultra.
 Route: `pselect6`-based stack reclaim (the originally-documented technique)
 was tested extensively on this device first and found to crash reliably and
 unrecoverably at the write stage — consistent with community findings
-(issues [#160](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads/issues/160),
-[#239](https://github.com/BuSung-dev/Root-My-Galaxy-Payloads/issues/239)) that
+(issues [#160](https://github.com/xpayder/Root-My-Galaxy-Payloads/issues/160),
+[#239](https://github.com/xpayder/Root-My-Galaxy-Payloads/issues/239)) that
 `pselect6` is fundamentally unsuited to several 5.15-kernel devices, not a
 tunable per-device offset problem. **MCAST** (a single
 `setsockopt(AF_INET6, IPPROTO_IPV6, MCAST_JOIN_SOURCE_GROUP, ...)` call
@@ -302,7 +302,7 @@ root daemon and returns a genuine root shell (`uid=0`,
 - All reverse-engineering, code, on-device testing, diagnosis, and this
   writeup: Claude (Anthropic), operating as an agent in this session.
 - Engine base: `X-15` (PR #227) and `johnny-salz` (PR #223), and the whole
-  `BuSung-dev/Root-My-Galaxy-Payloads` community whose parallel work on
+  `xpayder/Root-My-Galaxy-Payloads` community whose parallel work on
   S23-family devices this session's research drew on directly (issues
   #160, #239; PRs #223, #227, #231, #237, #196, #143).
 - KernelSnitch technique: Lukas Maar et al., ["KernelSnitch: Leaking and
