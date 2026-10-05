@@ -1096,7 +1096,11 @@ static int controlled_mm_leak(size_t cpu_count, uintptr_t hint,
     if (!state) {
       return -1;
     }
+#ifdef CONTROLLED_LEAK_REPEAT
+    kernelsnitch_set_profile(state, 256, CONTROLLED_LEAK_REPEAT, CONTROLLED_LEAK_AVERAGE);
+#else
     kernelsnitch_set_profile(state, 256, REPEAT_MEASUREMENT, AVERAGE);
+#endif
 #ifdef QEMU_MM_TRACE_VALIDATE
     uintptr_t oracle_mm = 0;
     if (!qemu_mm_trace_drain()) {
