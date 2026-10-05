@@ -35,7 +35,7 @@
 #define OFFSET_H
 
 #ifndef MM_STRUCT_SZ
-#define MM_STRUCT_SZ 0x400
+#define MM_STRUCT_SZ 960
 #endif
 
 #define KMALLOC_CGROUP_TYPE 1
