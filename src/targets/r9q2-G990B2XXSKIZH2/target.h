@@ -291,10 +291,10 @@
 #define FAKE_TASK_USAGE_OFF       0x38
 #define FAKE_TASK_PRIO_OFF        0x7c
 #define FAKE_TASK_NORMAL_PRIO_OFF 0x84
-#define FAKE_TASK_PI_LOCK_OFF     0x884
-#define FAKE_TASK_PI_WAITERS_OFF  0x898
-#define FAKE_TASK_PI_TOP_TASK_OFF 0x8a8
-#define FAKE_TASK_PI_BLOCKED_ON_OFF 0x8b0
+#define FAKE_TASK_PI_LOCK_OFF     0x8dc
+#define FAKE_TASK_PI_WAITERS_OFF  0x8e8
+#define FAKE_TASK_PI_TOP_TASK_OFF 0x8f8
+#define FAKE_TASK_PI_BLOCKED_ON_OFF 0x900
 
 // ── configfs page layout ─────────────────────────────────────────────────────
 #define CFG_PAGE_OFF          16
