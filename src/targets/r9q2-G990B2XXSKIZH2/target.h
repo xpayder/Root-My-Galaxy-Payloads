@@ -155,8 +155,8 @@
 #define MM_NORMAL_ALIAS_END   KERNELSNITCH_IDENTITY_END
 
 #define APPENDED_FUTEXES 4096
-#define REPEAT_MEASUREMENT 128
-#define AVERAGE 8
+#define REPEAT_MEASUREMENT 32  /* fast-profile cap: 8× speedup for controlled_mm_leak */
+#define AVERAGE 4              /* fast-profile cap: matches SLIDE_KSNITCH_AVERAGE/2 */
 #define KERNELSNITCH_BASELINE_SAMPLES 8
 #define KERNELSNITCH_BASELINE_QUANTILE 1
 #define S918_PAGE_SCAN_MAX 256
