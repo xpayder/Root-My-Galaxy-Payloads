@@ -439,6 +439,7 @@ static void put_slide_bank_entry(unsigned char *p, uintptr_t payload_base,
 #endif
 #endif
 
+// r9q2: futex_hashsize=0x800 (SM8350 num_possible_cpus=8, roundup_pow2(256*8)=0x800)
 void setup_kernelsnitch(void) {
   int cpu_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
 #if defined(APP_REQUIRE_FRESH_P0_SESSION) && APP_REQUIRE_FRESH_P0_SESSION
