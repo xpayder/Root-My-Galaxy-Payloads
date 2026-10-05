@@ -28,8 +28,8 @@ kernel `5.4.289-qgki-32192773-abG990B2XXSKIZH2` (Qualcomm SM8350 / QGKI), Androi
 
 | File | SHA-256 |
 | --- | --- |
-| `cve-2026-43499-app.so` | `e577d377503384ad3c10fe8d3c822938515abc4b09720079cd11bec2e1d4e940` |
-| `cve-2026-43499-root` | `7063dd540be94559c674bf770c86b1eeb507248134beb4f09c2e6c9b640b2075` |
+| `cve-2026-43499-app.so` | `2472082cc9d107bbbc2931baeeb12474af7f5888417e15e964f479eecc79b36c` |
+| `cve-2026-43499-root` | `be5a00fbf1dcce576fa5f18df99cdada9aa6918ef6cab0807495923b60e23b5d` |
 
 `cve-2026-43499-app.so` is built from this tree
 (`make TARGET=r9q2-G990B2XXSKIZH2 API=35`, Android NDK r27c).
