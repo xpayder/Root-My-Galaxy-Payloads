@@ -348,5 +348,20 @@
         "size": 4879856
       }
     },
+    {
+      "payloadId": "r9q2-G990B2XXSKIZH2",
+      "displayName": "Galaxy S21 FE SM-G990B2 | Kernel 5.4.289 | configfs oracle",
+      "models": ["SM-G990B2"],
+      "kernelVersions": ["5.4.289"],
+      "requiresFreshP0Session": true,
+      "exploit": {
+        "url": "https://raw.githubusercontent.com/xpayder/Root-My-Galaxy-Payloads/main/artifacts/r9q2-G990B2XXSKIZH2/cve-2026-43499-app.so",
+        "size": 129648
+      },
+      "kernelsu": {
+        "url": "https://raw.githubusercontent.com/xpayder/Root-My-Galaxy-Payloads/main/kernelsu/ksud-r9q2-G990B2XXSKIZH2-kdp",
+        "size": 0
+      }
+    }
   ]
 }
