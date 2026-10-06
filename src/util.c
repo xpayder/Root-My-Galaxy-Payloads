@@ -166,9 +166,9 @@ static size_t slide_bank_task_off = SLIDE_BANK_TASK_OFF;
 #endif
 
 static uintptr_t slide_bank_lock_owner(uintptr_t task) {
-#if defined(APP_S928_STABLE_RACE) && APP_S928_STABLE_RACE && \
-    defined(SLIDE_S928_BANK_LOCK_OWNER_TASK) && \
-    SLIDE_S928_BANK_LOCK_OWNER_TASK
+#if (defined(APP_S928_STABLE_RACE) && APP_S928_STABLE_RACE && \
+     defined(SLIDE_S928_BANK_LOCK_OWNER_TASK) && SLIDE_S928_BANK_LOCK_OWNER_TASK) || \
+    (defined(SLIDE_BANK_LOCK_OWNER_TASK) && SLIDE_BANK_LOCK_OWNER_TASK)
   return task | 1;
 #else
   (void)task;

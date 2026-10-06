@@ -94,6 +94,7 @@
 #define SLIDE_FAKE_WAITER_PRIO 0
 #define SLIDE_WAITER_WAKE_STATE 0
 #define SLIDE_LOCK_OWNER_VALUE 0ULL
+#define SLIDE_BANK_LOCK_OWNER_TASK 1
 // SKB_DATA_DELTA=-0x1000: pselect6 stack depth places stack_fds 3 words above rt_waiter
 #define SLIDE_PSELECT_WORD_SHIFT 3
 #define SLIDE_WAIT_NSEC 2000000000L
