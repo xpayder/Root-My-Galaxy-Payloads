@@ -2735,7 +2735,9 @@ static int prepare_p0_diag_gate_payload(int fd, uintptr_t payload_base) {
       !p0_diag_write32(fd, lock + 0x00, 0) ||
       !p0_diag_write64(fd, lock + 0x08, waiter) ||
       !p0_diag_write64(fd, lock + 0x10, waiter) ||
-      !p0_diag_write64(fd, lock + 0x18, SLIDE_LOCK_OWNER_VALUE) ||
+      !p0_diag_write64(fd, lock + 0x18,
+                       SLIDE_BANK_LOCK_OWNER_TASK ? (task | 1ULL)
+                                                  : SLIDE_LOCK_OWNER_VALUE) ||
       !prepare_p0_diag_waiter(fd, waiter, parent, target, task, lock) ||
       !p0_diag_write32(fd, task + FAKE_TASK_USAGE_OFF, 0x100) ||
       !p0_diag_write32(fd, task + FAKE_TASK_PRIO_OFF, FAKE_TASK_PRIO) ||
