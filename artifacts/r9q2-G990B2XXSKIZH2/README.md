@@ -28,7 +28,7 @@ kernel `5.4.289-qgki-32192773-abG990B2XXSKIZH2` (Qualcomm SM8350 / QGKI), Androi
 
 | File | SHA-256 |
 | --- | --- |
-| `cve-2026-43499-app.so` | `966f74261057ac8937eb2503081b245678f5fa6dd3c081c352b202f6dd455e24` |
+| `cve-2026-43499-app.so` | `737962bc1f5b58cbc0c51ca14a43831d4350ca8b1d9265c49755acd6fb2abf7d` |
 | `cve-2026-43499-root` | `be5a00fbf1dcce576fa5f18df99cdada9aa6918ef6cab0807495923b60e23b5d` |
 
 `cve-2026-43499-app.so` is built from this tree
