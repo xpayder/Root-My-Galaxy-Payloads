@@ -168,8 +168,10 @@
 #define APPENDED_FUTEXES 4096
 #define REPEAT_MEASUREMENT 128
 #define AVERAGE 8
-/* Separate fast timing for controlled_mm_leak: 8× fewer samples, still 42× above threshold */
-#define CONTROLLED_LEAK_REPEAT 32
+/* Separate fast timing for controlled_mm_leak: 32× fewer samples, still 13× above threshold.
+ * Reduced from 32→10 to fit 34 fills+trigger within p0_timeout=45s:
+ * overhead(12s) + fills(34×0.43s=14.6s) + trigger(17s) ≈ 43.6s < 45s */
+#define CONTROLLED_LEAK_REPEAT 10
 #define CONTROLLED_LEAK_AVERAGE 4
 #define KERNELSNITCH_BASELINE_SAMPLES 8
 #define KERNELSNITCH_BASELINE_QUANTILE 1
