@@ -1862,13 +1862,18 @@ void *slide_waiter_thread(void *arg __attribute__((unused))) {
   pr_info("slide wait_requeue_pi ret=%ld errno=%d\n", wait_ret, wait_errno);
 #endif
   if (wait_ret != -1 || wait_errno != ETIMEDOUT) {
-    /* Release chain lock before exiting. Without this the owner thread stays
-     * blocked in FUTEX_LOCK_PI on a dead owner; when _exit() kills both threads
-     * simultaneously the kernel's PI dead-owner cleanup walks a stale task_struct
-     * → panic. Unlocking here lets the owner wake cleanly before _exit() fires. */
-    futex_op(&slide_f_pi_chain, FUTEX_UNLOCK_PI, 0, NULL, NULL, 0);
+    /* EDEADLK / unexpected wakeup path.  Do NOT call FUTEX_UNLOCK_PI here:
+     * after CMP_REQUEUE_PI returns EDEADLK, the kernel rt_mutex state is
+     * partially dirty on 5.4 QGKI and any subsequent PI futex op from this
+     * thread panics.  Instead, just sleep; the owner uses a timed LOCK_PI and
+     * will bail on its own, leaving nobody waiting on the chain lock.  When
+     * _exit() later kills this thread the chain lock has no waiters so the
+     * kernel does a simple OWNER_DIED stamp — no chain-walk, no panic. */
+    pr_info("slide pi stage=waiter-edeadlk ret=%ld errno=%d tid=%d\n",
+            wait_ret, wait_errno, tid);
     atomic_store(&slide_route_done, 1);
-    return NULL;
+    pr_info("slide pi stage=waiter-edeadlk-sleep\n");
+    for (;;) usleep(100000);
   }
   pr_info("slide pi stage=wait-timeout-accepted tid=%d\n", tid);
   atomic_store(&slide_waiter_ok, 1);
@@ -1932,9 +1937,17 @@ void *slide_owner_thread(void *arg __attribute__((unused))) {
   atomic_store(&slide_owner_started, 1);
   pr_info("slide pi stage=owner-chain-lock-enter tid=%d\n",
           (int)syscall(SYS_gettid));
-  if (futex_op(&slide_f_pi_chain, FUTEX_LOCK_PI, 0, NULL, NULL, 0) != 0) {
-    pr_error("slide owner lock chain errno=%d\n", errno);
-    return NULL;
+  /* 5-second timeout: in the normal ETIMEDOUT path the waiter releases the
+   * chain lock within SLIDE_WAIT_NSEC (2 s), so 5 s is always enough.
+   * In the EDEADLK path the waiter never releases (we do not call
+   * FUTEX_UNLOCK_PI there — it panics on 5.4 QGKI), so we just bail. */
+  struct timespec chain_ts;
+  clock_gettime(CLOCK_REALTIME, &chain_ts);
+  chain_ts.tv_sec += 5;
+  if (futex_op(&slide_f_pi_chain, FUTEX_LOCK_PI, 0, &chain_ts, NULL, 0) != 0) {
+    pr_info("slide pi stage=owner-chain-lock-timeout errno=%d tid=%d\n",
+            errno, (int)syscall(SYS_gettid));
+    for (;;) sleep(1);
   }
   atomic_store(&slide_owner_acquired, 1);
   pr_info("slide pi stage=owner-chain-lock-return tid=%d\n",
@@ -2126,6 +2139,8 @@ static int slide_child_trigger_write(void) {
   while (!atomic_load(&slide_route_done)) {
     usleep(1000);
   }
+  pr_info("slide pi stage=cmp-route-done waiter_ok=%d\n",
+          atomic_load(&slide_waiter_ok));
 #if defined(APP_S928_STABLE_RACE) && APP_S928_STABLE_RACE
 #if defined(APP_S928_ROUTE_DIAG) && APP_S928_ROUTE_DIAG
   int waiter_ok = atomic_load(&slide_waiter_ok);
