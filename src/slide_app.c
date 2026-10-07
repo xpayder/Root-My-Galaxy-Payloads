@@ -937,7 +937,7 @@ RMG_RACE_INLINE void prepare_slide_pselect_fdsets(
 #if LEGACY_RT_MUTEX_WAITER || COMPACT_RT_MUTEX_WAITER
 #if defined(APP_PHYS_P0_ORACLE) && APP_PHYS_P0_ORACLE
 #if defined(APP_REQUIRE_FRESH_P0_SESSION) && APP_REQUIRE_FRESH_P0_SESSION
-    {0, stack_tree_parent | SLIDE_RB_PARENT_TYPE_RESTORE, "tree_pc"},
+    {0, stack_tree_parent | (stack_tree_left ? 0ULL : SLIDE_RB_PARENT_TYPE_RESTORE), "tree_pc"},
     {1, stack_tree_right, "tree_right"},
     {2, stack_tree_left, "tree_left"},
     {3, stack_pi_parent, "pi_pc"},
