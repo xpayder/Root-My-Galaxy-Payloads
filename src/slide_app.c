@@ -1862,6 +1862,11 @@ void *slide_waiter_thread(void *arg __attribute__((unused))) {
   pr_info("slide wait_requeue_pi ret=%ld errno=%d\n", wait_ret, wait_errno);
 #endif
   if (wait_ret != -1 || wait_errno != ETIMEDOUT) {
+    /* Release chain lock before exiting. Without this the owner thread stays
+     * blocked in FUTEX_LOCK_PI on a dead owner; when _exit() kills both threads
+     * simultaneously the kernel's PI dead-owner cleanup walks a stale task_struct
+     * → panic. Unlocking here lets the owner wake cleanly before _exit() fires. */
+    futex_op(&slide_f_pi_chain, FUTEX_UNLOCK_PI, 0, NULL, NULL, 0);
     atomic_store(&slide_route_done, 1);
     return NULL;
   }
