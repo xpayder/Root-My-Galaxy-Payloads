@@ -12,7 +12,7 @@
       ],
       "exploit": {
         "url": "https://raw.githubusercontent.com/xpayder/Root-My-Galaxy-Payloads/main/artifacts/r9q2-G990B2XXSKIZH2/cve-2026-43499-app.so",
-        "size": 134928
+        "size": 135040
       },
       "kernelsu": {
         "url": "https://raw.githubusercontent.com/xpayder/Root-My-Galaxy-Payloads/main/artifacts/r9q2-G990B2XXSKIZH2/android13-5.4_kernelsu-G990B2XXSKIZH2-kdp.ko",
@@ -440,7 +440,7 @@
       "requiresFreshP0Session": true,
       "exploit": {
         "url": "https://raw.githubusercontent.com/xpayder/Root-My-Galaxy-Payloads/main/artifacts/r9q2-G990B2XXSKIZH2/cve-2026-43499-app.so",
-        "size": 134928
+        "size": 135040
       },
       "kernelsu": {
         "url": "https://raw.githubusercontent.com/xpayder/Root-My-Galaxy-Payloads/main/kernelsu/ksud-r9q2-G990B2XXSKIZH2-kdp",
