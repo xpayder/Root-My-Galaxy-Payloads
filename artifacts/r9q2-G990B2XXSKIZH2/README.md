@@ -21,15 +21,15 @@ kernel `5.4.289-qgki-32192773-abG990B2XXSKIZH2` (Qualcomm SM8350 / QGKI), Androi
 
 ## Hardware evidence
 
-> **Pending device test.** Profile has been compiled and statically verified.
+> **In progress.** Built with `APP_ACCEPT_SCHED_TRIGGER=1` + `KSNITCH_COLLISIONS=5`.
 > Fingerprint confirmed against live device via `adb shell getprop ro.build.fingerprint`.
 
 ## Files
 
 | File | SHA-256 |
 | --- | --- |
-| `cve-2026-43499-app.so` | `1af8ff93d6af87e7ca7784433b2c04784bec0676725da5ca87b3874c4b7410ee` |
-| `cve-2026-43499-root` | `1af8ff93d6af87e7ca7784433b2c04784bec0676725da5ca87b3874c4b7410ee` |
+| `cve-2026-43499-app.so` | `843af384f0693571dbaffa2062915ede82a4fc3311bc7b7ac85ab08f8124d800` |
+| `cve-2026-43499-root` | `7063dd540be94559c674bf770c86b1eeb507248134beb4f09c2e6c9b640b2075` |
 
 `cve-2026-43499-app.so` is built from this tree
 (`make TARGET=r9q2-G990B2XXSKIZH2 API=35`, Android NDK r27c).
